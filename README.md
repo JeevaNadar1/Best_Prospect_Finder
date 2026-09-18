@@ -3,6 +3,7 @@
 Turn a plain-English customer profile into verified, deduplicated leads in a Google Sheet — without writing the same email into your sheet twice, or the wrong email onto the wrong person.
 
 ```bash
+cd scripts
 python run.py search --titles "Head of Real Estate,VP Supply Chain" \
                      --companies "blinkit.com,swiggy.com" \
                      --phones
@@ -42,10 +43,14 @@ Each of those is guarded here, and each guard has a test.
 **1. Install**
 
 ```bash
-git clone https://github.com/yourname/best-prospect-finder.git
-cd best-prospect-finder
+git clone https://github.com/JeevaNadar1/best-prospect-finder.git
+cd best-prospect-finder/scripts
 pip install -r requirements.txt
 ```
+
+Or install it as a Claude skill — download `best-prospect-finder.skill` from the
+[latest release](https://github.com/JeevaNadar1/best-prospect-finder/releases) and
+upload it in Settings → Capabilities → Skills.
 
 **2. Get credentials**
 
@@ -56,6 +61,7 @@ pip install -r requirements.txt
 **3. Configure**
 
 ```bash
+cd scripts
 cp .env.example .env
 ```
 
@@ -71,6 +77,7 @@ MONTHLY_CREDIT_CAP=500         # cumulative
 **4. Test with one credit**
 
 ```bash
+cd scripts
 LOG_LEVEL=DEBUG python run.py search --titles "Head of Real Estate" --count 1
 ```
 
@@ -79,6 +86,7 @@ Preflight validates your key, scopes, sheet access, and reports Apollo's live ra
 **5. Run it**
 
 ```bash
+cd scripts
 python run.py search \
   --titles "Head of Real Estate,VP Supply Chain,Head of Expansion" \
   --locations "Mumbai, India,Bengaluru, India" \
@@ -125,6 +133,8 @@ Both are created and formatted automatically — bold headers, frozen top row, a
 Apollo returns emails inline. **Phones it does not.** Requesting one makes the reveal asynchronous: Apollo accepts the request, then POSTs the number to a URL you supply, minutes later. There's no polling alternative.
 
 ```bash
+# all three run from scripts/
+
 # terminal 1
 python run.py receiver --port 8080
 
@@ -188,7 +198,20 @@ A 70–80% email unlock rate is normal. Apollo doesn't have a verified address f
 ## Structure
 
 ```
-src/
+best-prospect-finder/
+├── SKILL.md                    Claude skill protocol — the only file always loaded
+├── references/                 architecture, setup, phone setup, troubleshooting
+├── assets/icp-patterns.md      worked ICP → filter translations
+└── scripts/
+    ├── run.py                  CLI entry point
+    ├── requirements.txt
+    ├── .env.example
+    ├── tests/                  34 tests
+    └── src/
+```
+
+```
+scripts/src/
 ├── config.py           # env loading, fail-fast validation
 ├── models.py           # typed dataclasses, both sheet schemas
 ├── retry.py            # exponential backoff, honours Retry-After
@@ -212,6 +235,8 @@ src/
 ## Tests
 
 ```bash
+cd scripts
+pip install pytest    # not a runtime dependency
 pytest tests/ -v      # 34 tests
 ```
 
@@ -242,8 +267,14 @@ A positional `zip()` against that same response gives Person0 Person3's address.
 
 ## Documentation
 
-Full architecture, setup walkthrough, complete annotated source, failure-mode analysis, and troubleshooting: [`docs/Best-Prospect-Finder.md`](docs/Best-Prospect-Finder.md)
+Full architecture, setup walkthrough, complete annotated source, failure-mode analysis, and
+troubleshooting: [`Best-Prospect-Finder.md`](Best-Prospect-Finder.md).
+
+Loaded on demand by the skill: [`references/setup.md`](references/setup.md),
+[`references/architecture.md`](references/architecture.md),
+[`references/phone-setup.md`](references/phone-setup.md),
+[`references/troubleshooting.md`](references/troubleshooting.md).
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
